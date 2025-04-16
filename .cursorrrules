@@ -1,0 +1,22 @@
+{
+  "entry": "index.js",
+  "folders": {
+    "routes": "All API route handlers (e.g., Twilio webhooks, lead triggers)",
+    "services": "External API logic (GPT, ElevenLabs, Whisper)",
+    "utils": "Shared utilities (e.g., phone formatting, logging)",
+    "middlewares": "Express middleware (optional if added later)",
+    "config": "Environment setup and key config files (optional)"
+  },
+  "env": {
+    "TWILIO_ACCOUNT_SID": "Your Twilio Account SID",
+    "TWILIO_AUTH_TOKEN": "Your Twilio Auth Token",
+    "TWILIO_PHONE_NUMBER": "Your Twilio Phone #",
+    "OPENAI_API_KEY": "Your OpenAI Key",
+    "ELEVENLABS_API_KEY": "Your ElevenLabs Key"
+  },
+  "ignore": [
+    "node_modules",
+    ".env",
+    "README.md"
+  ]
+}
