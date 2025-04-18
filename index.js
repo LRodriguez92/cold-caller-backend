@@ -7,7 +7,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/twilio', require('./routes/twilio'));
+app.use('/voice', require('./routes/voice'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
