@@ -41,16 +41,28 @@ async function initializeSignalWire() {
         // Answer the call
         await call.answer();
         
-        // Play TTS message with event handlers
-        await call.playTTS({
-          text: "Hello, this is Quantum Codeworks. Thank you for calling. How may we assist you today?",
+        // Start voice detection before TTS
+        await call.detectVoice({
+          timeout: 5,  // Wait up to 5 seconds for voice detection
           listen: {
-            onStarted: () => console.log("TTS started"),
-            onFailed: () => console.log("TTS failed"),
-            onUpdated: (tts) => console.log("TTS state:", tts.state),
-            onEnded: () => {
-              console.log("TTS ended");
-              // You can add more call handling logic here after TTS ends
+            onStarted: () => console.log("Voice detection started"),
+            onVoiceDetected: async () => {
+              console.log("Voice detected - caller is speaking");
+              // You can handle the case when the caller speaks first
+            },
+            onEnded: async () => {
+              // If no voice detected after timeout, play the TTS
+              await call.playTTS({
+                text: "Hello, this is Quantum Codeworks. Thank you for calling. How may we assist you today?",
+                listen: {
+                  onStarted: () => console.log("TTS started"),
+                  onFailed: () => console.log("TTS failed"),
+                  onUpdated: (tts) => console.log("TTS state:", tts.state),
+                  onEnded: () => {
+                    console.log("TTS ended");
+                  }
+                }
+              });
             }
           }
         });
@@ -111,21 +123,46 @@ router.post('/call', async (req, res) => {
               // Wait a brief moment to ensure the call is fully established
               await new Promise(resolve => setTimeout(resolve, 1000));
 
-              // Play custom message or default message
-              const ttsMessage = message || "Hello, this is Quantum Codeworks. Thank you for answering our call. How may we assist you today?";
-              console.log('Playing TTS message:', ttsMessage);
-
-              await call.playTTS({
-                text: ttsMessage,
+              // Start recording to detect voice
+              await call.recordAudio({
+                direction: "speak",  // Only record incoming audio
+                endSilenceTimeout: 1.0,  // End recording after 1 second of silence
+                initialTimeout: 3.0,  // Wait up to 3 seconds for voice to start
                 listen: {
-                  onStarted: () => console.log('TTS started'),
-                  onEnded: () => console.log('TTS completed'),
-                  onFailed: (error) => console.error('TTS failed:', error),
-                  onUpdated: (tts) => console.log('TTS state:', tts.state)
+                  onStarted: () => console.log("Recording started - listening for voice"),
+                  onEnded: async (recording) => {
+                    console.log("Recording ended");
+                    if (recording.duration > 0) {
+                      // Voice was detected, wait a moment then play response
+                      await new Promise(resolve => setTimeout(resolve, 1000));
+                      const ttsMessage = message || "Hello, I heard you speaking. This is Quantum Codeworks. How may we assist you today?";
+                      await call.playTTS({
+                        text: ttsMessage,
+                        listen: {
+                          onStarted: () => console.log('TTS started'),
+                          onEnded: () => console.log('TTS completed'),
+                          onFailed: (error) => console.error('TTS failed:', error),
+                          onUpdated: (tts) => console.log('TTS state:', tts.state)
+                        }
+                      });
+                    } else {
+                      // No voice detected, play standard greeting
+                      const ttsMessage = message || "Hello, this is Quantum Codeworks. Thank you for answering our call. How may we assist you today?";
+                      await call.playTTS({
+                        text: ttsMessage,
+                        listen: {
+                          onStarted: () => console.log('TTS started'),
+                          onEnded: () => console.log('TTS completed'),
+                          onFailed: (error) => console.error('TTS failed:', error),
+                          onUpdated: (tts) => console.log('TTS state:', tts.state)
+                        }
+                      });
+                    }
+                  }
                 }
               });
             } catch (error) {
-              console.error('Error during TTS playback:', error);
+              console.error('Error during audio recording or TTS playback:', error);
             }
           }
         }
