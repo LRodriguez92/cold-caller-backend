@@ -187,4 +187,113 @@ router.post('/call', async (req, res) => {
   }
 });
 
+// Test endpoint for ElevenLabs integration
+router.post('/test-elevenlabs', async (req, res) => {
+  try {
+    const { to, message = "This is a test of ElevenLabs integration with SignalWire. How does this voice sound?" } = req.body;
+    
+    if (!to) {
+      return res.status(400).json({ error: 'Phone number (to) is required' });
+    }
+
+    const toNumber = formatPhoneNumber(to);
+    const fromNumber = formatPhoneNumber(process.env.SIGNALWIRE_PHONE_NUMBER);
+
+    // Log environment variables (redacted)
+    console.log('Environment Check:');
+    console.log('ELEVENLABS_API_KEY exists:', !!process.env.ELEVENLABS_API_KEY);
+    console.log('SIGNALWIRE_PROJECT_ID exists:', !!process.env.SIGNALWIRE_PROJECT_ID);
+    console.log('SIGNALWIRE_PHONE_NUMBER exists:', !!process.env.SIGNALWIRE_PHONE_NUMBER);
+
+    console.log('Starting ElevenLabs test call:');
+    console.log('To:', toNumber);
+    console.log('From:', fromNumber);
+    console.log('Message:', message);
+
+    // Generate audio using ElevenLabs first
+    console.log('Generating audio with ElevenLabs...');
+    try {
+      const audioBuffer = await elevenLabsService.textToSpeech(message);
+      console.log('Audio generated successfully, buffer size:', audioBuffer.length);
+    } catch (elevenlabsError) {
+      console.error('ElevenLabs API Error:', {
+        message: elevenlabsError.message,
+        response: elevenlabsError.response?.data,
+        status: elevenlabsError.response?.status
+      });
+      throw new Error(`ElevenLabs API failed: ${elevenlabsError.message}`);
+    }
+
+    // Make the call using voiceClient
+    try {
+      const call = await voiceClient.dialPhone({
+        to: toNumber,
+        from: fromNumber,
+        timeout: 30,
+        listen: {
+          onStateChanged: async (call) => {
+            console.log('Call state changed to:', call.state);
+            
+            if (call.state === 'answered') {
+              console.log('Call answered, playing ElevenLabs audio...');
+              try {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                await call.playAudio({
+                  media: audioBuffer,
+                  listen: {
+                    onStarted: () => console.log('ElevenLabs audio playback started'),
+                    onEnded: () => console.log('ElevenLabs audio playback completed'),
+                    onFailed: (error) => console.error('ElevenLabs audio playback failed:', error)
+                  }
+                });
+              } catch (playbackError) {
+                console.error('Playback Error:', playbackError);
+                // Fallback to SignalWire TTS
+                await call.playTTS({
+                  text: "Sorry, there was an error with the voice system. This is the backup voice.",
+                  listen: {
+                    onStarted: () => console.log('Fallback TTS started'),
+                    onEnded: () => console.log('Fallback TTS completed'),
+                    onFailed: (error) => console.error('Fallback TTS failed:', error)
+                  }
+                });
+              }
+            }
+          }
+        }
+      });
+
+      console.log('Test call initiated:', call.id);
+      await call.waitFor('ended').then(() => {
+        console.log('Test call ended');
+      });
+
+      res.json({
+        success: true,
+        callId: call.id,
+        message: `Test call initiated to ${toNumber}`
+      });
+
+    } catch (signalwireError) {
+      console.error('SignalWire Error:', {
+        message: signalwireError.message,
+        code: signalwireError.code,
+        details: signalwireError.details
+      });
+      throw new Error(`SignalWire call failed: ${signalwireError.message}`);
+    }
+
+  } catch (error) {
+    console.error('Error in ElevenLabs test:', {
+      message: error.message,
+      stack: error.stack
+    });
+    res.status(500).json({ 
+      error: 'Failed to complete ElevenLabs test',
+      details: error.message,
+      type: error.constructor.name
+    });
+  }
+});
+
 module.exports = router; 
