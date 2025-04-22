@@ -50,3 +50,6 @@ dist/
 *.mp3
 *.wav
 *.ogg
+
+# Markdown files
+MVP_vs_Final.md
