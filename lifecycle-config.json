@@ -1,0 +1,14 @@
+{
+    "Rules": [
+        {
+            "Expiration": {
+                "Days": 1
+            },
+            "ID": "Delete temporary audio files",
+            "Filter": {
+                "Prefix": ""
+            },
+            "Status": "Enabled"
+        }
+    ]
+}
