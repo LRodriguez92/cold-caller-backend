@@ -12,10 +12,10 @@
    - [ ] Install AWS SDK: `npm install aws-sdk`
    - [ ] Add AWS credentials to environment variables:
      ```
-     AWS_ACCESS_KEY_ID=
-     AWS_SECRET_ACCESS_KEY=
-     AWS_REGION=
-     AWS_BUCKET_NAME=
+     AWS_ACCESS_KEY_ID=your_access_key
+     AWS_SECRET_ACCESS_KEY=your_secret_key
+     AWS_REGION=us-east-2
+     AWS_BUCKET_NAME=temp-audio-calls--use2-az1--x-s3
      ```
 
 3. Code Implementation

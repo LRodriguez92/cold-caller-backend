@@ -5,6 +5,15 @@
 - **Purpose**: Temporary storage for audio files with automatic deletion
 - **Environment**: [ENVIRONMENT]
 
+## Environment Variables
+The following AWS environment variables must be configured:
+- `AWS_ACCESS_KEY_ID`: Your AWS access key
+- `AWS_SECRET_ACCESS_KEY`: Your AWS secret key
+- `AWS_REGION`: The AWS region where your S3 bucket is located
+- `AWS_BUCKET_NAME`: The name of your S3 Express Directory bucket
+
+These can be set in your `.env` file or through your deployment environment.
+
 ## Lifecycle Configuration
 ```json
 {
