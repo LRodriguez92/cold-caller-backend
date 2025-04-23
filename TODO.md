@@ -2,20 +2,20 @@
 
 ## AWS S3 Integration for Audio Files
 1. Setup AWS S3
-   - [ ] Create AWS account if not exists
-   - [ ] Create S3 bucket for temporary audio files
-   - [ ] Configure bucket lifecycle rules for automatic cleanup
-   - [ ] Set up IAM user with minimal required permissions
-   - [ ] Get AWS credentials (access key and secret)
+   - [x] Create AWS account if not exists
+   - [x] Create S3 bucket for temporary audio files
+   - [x] Configure bucket lifecycle rules for automatic cleanup
+   - [x] Set up IAM user with minimal required permissions
+   - [x] Get AWS credentials (access key and secret)
 
 2. Project Dependencies
-   - [ ] Install AWS SDK: `npm install aws-sdk`
-   - [ ] Add AWS credentials to environment variables:
+   - [x] Install AWS SDK: `npm install aws-sdk`
+   - [x] Add AWS credentials to environment variables:
      ```
-     AWS_ACCESS_KEY_ID=your_access_key
-     AWS_SECRET_ACCESS_KEY=your_secret_key
-     AWS_REGION=us-east-2
-     AWS_BUCKET_NAME=temp-audio-calls--use2-az1--x-s3
+     AWS_ACCESS_KEY_ID=
+     AWS_SECRET_ACCESS_KEY=
+     AWS_REGION=
+     AWS_BUCKET_NAME=
      ```
 
 3. Code Implementation
