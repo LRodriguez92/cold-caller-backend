@@ -24,7 +24,12 @@ The cold calling microservice is a Node.js application that orchestrates AI-powe
    - Enables context-aware conversation retrieval
    - Maintains lead history and call context
 
-4. **Core Services**
+4. **File Storage (AWS S3)**
+   - Temporary storage for audio files
+   - Automatic file lifecycle management
+   - Secure and scalable file handling
+
+5. **Core Services**
    - Call Planner: Determines call strategy and flow
    - Follow-up Analyzer: Processes call outcomes
    - Lead Manager: Handles lead data and history
@@ -41,11 +46,13 @@ The cold calling microservice is a Node.js application that orchestrates AI-powe
    - Text → Context (Pinecone)
    - Context → Response (OpenAI)
    - Response → Speech (ElevenLabs)
+   - Audio files → S3 temporary storage
 
 3. **Call Completion**
    - Call summary generated
    - Results stored in vector store
    - Follow-up actions determined
+   - Temporary audio files automatically cleaned up
 
 ### Error Handling & Monitoring
 
